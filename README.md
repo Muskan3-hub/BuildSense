@@ -1,6 +1,6 @@
 # 🏗️ BuildSense: Intelligent Civil Engineering Assistant & Construction Automation Engine
 
-> **Author:** Rahul Mandal  
+> **Author:** Muskan  
 > **Internship:** Infosys Springboard Virtual Internship  
 > **Project:** BuildSense — Multi-Agent AI Decision Support System  
 
@@ -321,5 +321,5 @@ If API keys are not provided, BuildSense automatically runs in **Simulation Mode
 
 ## 📜 License & Credits
 
-Developed for the **Infosys Springboard Virtual Internship** by **Rahul Mandal**.  
+Developed for the **Infosys Springboard Virtual Internship** by **Muskan*.  
 Project Architecture: **BuildSense — Multi-Agent AI Decision Support System**.
