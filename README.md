@@ -321,5 +321,5 @@ If API keys are not provided, BuildSense automatically runs in **Simulation Mode
 
 ## 📜 License & Credits
 
-Developed for the **Infosys Springboard Virtual Internship** by **Muskan*.  
+Developed for the **Infosys Springboard Virtual Internship** by **Muskan**.  
 Project Architecture: **BuildSense — Multi-Agent AI Decision Support System**.
