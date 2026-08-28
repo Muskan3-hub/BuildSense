@@ -1,0 +1,392 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuildSense - Multi-Agent AI Construction Engine</title>
+    <!-- Google Fonts: Outfit (headings) and Inter (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for premium vector icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="/static/css/style.css?v=20260824n">
+</head>
+<body>
+    <!-- App Container -->
+    <div class="app-container">
+        <!-- Top Navigation / Header -->
+        <header class="app-header">
+            <div class="header-logo">
+                <div class="logo-icon"><i class="fa-solid fa-compass-drafting"></i></div>
+                <div class="logo-text">
+                    <h1>BuildSense</h1>
+                    <span>Multi-Agent AI Decision Engine</span>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <!-- Header Weather Widget -->
+                <div class="header-weather-widget" id="dashboardWeatherCard"
+                     tabindex="0" role="button" aria-label="View construction weather details"
+                     aria-expanded="false" aria-controls="weatherPopover">
+                    <div class="hw-inner" id="dashboardWeatherInner">
+                        <div class="hw-loading" id="dashboardWeatherLoading">
+                            <i class="fa-solid fa-cloud-sun" style="color:var(--color-blue);"></i>
+                            <span>Weather</span>
+                        </div>
+                        <div class="hw-loaded" id="dashboardWeatherLoaded" style="display:none;">
+                            <span class="hw-city"><i class="fa-solid fa-location-dot"></i> <span id="dwCity">--</span></span>
+                            <span class="hw-icon" id="dwIcon">--</span>
+                            <span class="hw-temp" id="dwTemp">--°C</span>
+                            <span class="dw-risk" id="dwRisk"></span>
+                        </div>
+                        <div class="hw-error" id="dashboardWeatherError" style="display:none;">
+                            <i class="fa-solid fa-cloud-rain" style="color:var(--text-muted);font-size:12px;"></i>
+                        </div>
+                    </div>
+                    <!-- Weather Popover -->
+                    <div class="weather-popover" id="weatherPopover" role="dialog" aria-label="Construction weather details">
+                        <div class="weather-popover-inner">
+                            <div class="wp-header">
+                                <span class="wp-city"><i class="fa-solid fa-location-dot"></i> <span id="wpCity">--</span></span>
+                                <span class="wp-risk" id="wpRisk">LOW</span>
+                            </div>
+                            <div class="wp-temp-row">
+                                <span class="wp-icon" id="wpIcon">--</span>
+                                <div class="wp-temp-col">
+                                    <span class="wp-temp" id="wpTemp">--°C</span>
+                                    <span class="wp-condition" id="wpCondition">--</span>
+                                </div>
+                            </div>
+                            <div class="wp-divider"></div>
+                            <div class="wp-details">
+                                <div class="wp-detail"><i class="fa-solid fa-temperature-half"></i><span>Feels like: <strong id="wpFeelsLike">--</strong></span></div>
+                                <div class="wp-detail"><i class="fa-solid fa-droplet"></i><span>Humidity: <strong id="wpHumidity">--</strong></span></div>
+                                <div class="wp-detail"><i class="fa-solid fa-wind"></i><span>Wind: <strong id="wpWind">--</strong></span></div>
+                                <div class="wp-detail"><i class="fa-solid fa-cloud-rain"></i><span>Rainfall: <strong id="wpRainfall">--</strong></span></div>
+                            </div>
+                            <div class="wp-divider"></div>
+                            <div class="wp-advisory-section">
+                                <div class="wp-advisory-title"><i class="fa-solid fa-hard-hat"></i> Site Advisory</div>
+                                <div class="wp-advisories" id="wpAdvisories">--</div>
+                                <div class="wp-activities">
+                                    <div class="wp-act-group wp-act-safe" id="wpSafeActivities"></div>
+                                    <div class="wp-act-group wp-act-restricted" id="wpRestrictedActivities"></div>
+                                </div>
+                            </div>
+                            <div class="wp-footer">
+                                <span id="wpUpdated"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="engine-mode-badge" id="engineModeBadge">
+                    <span class="status-dot pulsing"></span>
+                    <span class="mode-text">Simulation Mode</span>
+                </div>
+                <button class="btn btn-danger" id="logoutBtn" title="Sign Out">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        
+        <!-- Main Content Wrapper -->
+        <div class="app-content-wrapper">
+            <!-- Sidebar Navigation -->
+            <aside class="app-sidebar">
+                <nav class="sidebar-nav">
+                    <button class="nav-btn active" data-tab="dashboard">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </button>
+
+                    <button class="nav-btn" data-tab="calendar">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <span>Calendar</span>
+                    </button>
+                    <button class="nav-btn" data-tab="design">
+                        <i class="fa-solid fa-couch"></i>
+                        <span>Design Studio</span>
+                    </button>
+                    <button class="nav-btn" data-tab="chats">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span>Recent Chats</span>
+                    </button>
+                </nav>
+            </aside>
+
+            <main class="app-main tab-pane active" id="tab-dashboard">
+            <!-- Left Panel: Blueprint Canvas & Orchestrator Map -->
+            <section class="left-panel">
+                <!-- Card 1: Drawing Workspace -->
+                <div class="glass-card blueprint-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-map"></i>
+                            <h2>Floor Plan Workspace</h2>
+                        </div>
+                        <div class="canvas-controls" id="canvasControls" style="display: none;">
+                            <span class="control-badge badge-blue" id="lblTotalArea"><i class="fa-solid fa-ruler-combined"></i> --</span>
+                            <span class="control-badge badge-orange" id="lblCorridors"><i class="fa-solid fa-route"></i> --</span>
+                            <span class="control-badge badge-green" id="lblExits"><i class="fa-solid fa-door-open"></i> --</span>
+                            <button class="btn btn-link" id="resetBlueprintBtn" title="Reset Blueprint" style="margin-left:auto;font-size:12px;">
+                                <i class="fa-solid fa-trash"></i> Reset Blueprint
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body blueprint-body">
+                        <!-- Dropzone for uploads -->
+                        <div class="upload-dropzone" id="uploadDropzone">
+                            <div class="dropzone-inner">
+                                <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
+                                <h3>Drag & Drop Floor Plan</h3>
+                                <p>Supports PNG, JPG, JPEG (Scanned plans/drawings)</p>
+                                <div class="dropzone-divider"><span>OR</span></div>
+                                <label for="fileInput" class="btn btn-primary btn-upload">
+                                    <i class="fa-solid fa-folder-open"></i> Browse Files
+                                </label>
+                                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                                <button class="btn btn-link btn-preset" id="loadDemoBtn">
+                                    <i class="fa-solid fa-image"></i> Load Demo Renovations Blueprint
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Workspace Uploading & Scanning Animation Overlay -->
+                        <div class="workspace-scanning-overlay" id="workspaceScanningOverlay" style="display: none;">
+                            <div class="scanning-card">
+                                <div class="radar-spinner"></div>
+                                <div class="scanning-beam"></div>
+                                <h4><i class="fa-solid fa-microscope"></i> Analyzing Architectural Drawing...</h4>
+                                <p class="scanning-subtitle">Uploading drawing and extracting room layout data...</p>
+                                <div class="scanning-progress-track">
+                                    <div class="scanning-progress-bar"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Canvas Workspace -->
+                        <div class="canvas-container" id="canvasContainer" style="display: none;">
+                            <div class="zoom-controls" id="zoomControls">
+                                <button class="btn-icon-zoom" id="zoomOutBtn" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
+                                <span class="zoom-level" id="zoomLevel">100%</span>
+                                <button class="btn-icon-zoom" id="zoomInBtn" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                            <div class="canvas-scroll-area" id="canvasScrollArea">
+                                <div class="canvas-wrapper" id="canvasWrapper">
+                                    <canvas id="blueprintCanvas"></canvas>
+                                    <div class="canvas-tooltip" id="canvasTooltip"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Chat Console & Decision Support Output -->
+            <section class="right-panel">
+                <div class="glass-card chat-card" style="display:flex;flex-direction:column;overflow:hidden;">
+                    <div class="card-header" style="flex-shrink:0;">
+                        <div class="card-title">
+                            <i class="fa-solid fa-comment-dots"></i>
+                            <h2>Decision Support & Chat</h2>
+                        </div>
+                        <div class="chat-actions">
+                            <button class="btn btn-link" id="newChatBtn" title="New Chat">
+                                <i class="fa-solid fa-plus"></i> New Chat
+                            </button>
+                            <button class="btn btn-link btn-export" id="exportReportBtn" title="Export JSON Report" style="display: none;">
+                                <i class="fa-solid fa-file-export"></i> Export
+                            </button>
+                            <button class="btn btn-link btn-clear" id="clearChatBtn" title="Clear Chat History">
+                                <i class="fa-solid fa-rotate-left"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Window -->
+                    <div class="card-body chat-body" id="chatHistory" style="flex:1;overflow-y:auto;">
+                        <!-- Default Welcome Message -->
+                        <div class="chat-message system-message">
+                            <div class="msg-icon"><i class="fa-solid fa-robot"></i></div>
+                            <div class="msg-content">
+                                <h3>Welcome to BuildSense</h3>
+                                <p>Upload an architectural floor plan drawing on the left, then ask me questions about budget matching, fire code compliance, labor timelines, or resource scheduling.</p>
+                                
+                                <div class="quick-presets">
+                                    <span class="preset-title">Try this query preset:</span>
+                                    <button class="btn btn-preset-chip" id="presetQueryBtn">
+                                        "Can we finish Phase 2 within a ₹15 lakh budget while staying compliant with fire safety norms?"
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload Progress + Stop Button -->
+                    <div class="upload-progress-bar" id="uploadProgressBar" style="display:none;padding:6px 16px;background:rgba(0,210,255,0.08);flex-shrink:0;">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <div class="spinner-sm" style="width:14px;height:14px;border:2px solid rgba(0,210,255,0.3);border-top-color:#00d2ff;border-radius:50%;animation:spin 1s linear infinite;"></div>
+                            <span style="font-size:12px;color:#8b9bb4;">Uploading blueprint...</span>
+                            <button class="btn btn-danger" id="stopUploadBtn" style="margin-left:auto;font-size:11px;padding:2px 10px;">
+                                <i class="fa-solid fa-stop"></i> Stop
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Input Area -->
+                    <div class="chat-input-area" style="flex-shrink:0;">
+                        <div class="input-row">
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-message input-icon"></i>
+                                <input type="text" id="chatInput" placeholder="Ask about cost estimation, NBC safety norms, or labor..." autocomplete="off">
+                            </div>
+                            <button class="btn btn-primary btn-send" id="sendBtn">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        
+            <!-- Design Studio Tab -->
+            <main class="app-main tab-pane" id="tab-design">
+                <section class="full-panel glass-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-couch"></i>
+                            <h2>Interior Design Studio</h2>
+                        </div>
+                        <div class="canvas-controls">
+                            <select id="stylePresetSelector" class="custom-select">
+                                <option value="modern_minimalist">Modern Minimalist</option>
+                                <option value="traditional_indian">Traditional Indian</option>
+                                <option value="contemporary">Contemporary</option>
+                                <option value="industrial">Industrial</option>
+                            </select>
+                            <button id="generateDesignBtn" class="btn btn-primary"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Design</button>
+                        </div>
+                    </div>
+                    <div class="card-body design-body" id="designContainer">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-image"></i>
+                            <p>Upload a blueprint and generate a design to view room recommendations here.</p>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+
+
+            <!-- Calendar Tab -->
+            <main class="app-main tab-pane" id="tab-calendar">
+                <section class="full-panel glass-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            <h2>Project Timeline</h2>
+                        </div>
+                    </div>
+                    <div class="card-body calendar-body">
+                        <!-- Start Date + Duration + Workers: the end date is derived internally -->
+                        <div id="durationSection" class="calendar-duration">
+                            <span class="duration-label"><i class="fa-solid fa-clock"></i> Duration</span>
+                            <div class="duration-field">
+                                <label for="planStartDate">Start Date</label>
+                                <input type="date" id="planStartDate" class="custom-select">
+                            </div>
+                            <div class="duration-field">
+                                <label for="planDurationMonths">Duration</label>
+                                <select id="planDurationMonths" class="custom-select">
+                                    <option value="1">1 Month</option>
+                                    <option value="2">2 Months</option>
+                                    <option value="3" selected>3 Months</option>
+                                    <option value="4">4 Months</option>
+                                    <option value="5">5 Months</option>
+                                    <option value="6">6 Months</option>
+                                    <option value="7">7 Months</option>
+                                    <option value="8">8 Months</option>
+                                    <option value="9">9 Months</option>
+                                    <option value="10">10 Months</option>
+                                    <option value="11">11 Months</option>
+                                    <option value="12">12 Months</option>
+                                </select>
+                            </div>
+                            <div class="duration-field workers-field">
+                                <label for="planWorkers">No. of Workers</label>
+                                <input type="number" id="planWorkers" class="custom-select" min="1" step="1"
+                                       inputmode="numeric" placeholder="Enter workers">
+                                <span id="workersHint" class="workers-hint" aria-live="polite"></span>
+                            </div>
+                            <button id="generatePlanBtn" class="btn btn-primary"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Plan</button>
+                        </div>
+                        <p id="planMessage" class="plan-message" hidden></p>
+
+                        <div class="calendar-layout">
+                            <div class="calendar-main">
+                                <div id="calendarHeader" class="calendar-header-view">
+                                    <button id="calPrevBtn" class="btn-icon" aria-label="Previous month">&lt;</button>
+                                    <h3 id="calMonthYear"></h3>
+                                    <button id="calNextBtn" class="btn-icon" aria-label="Next month">&gt;</button>
+                                </div>
+                                <div id="calendarGrid" class="calendar-grid">
+                                    <!-- Calendar generated by JS -->
+                                </div>
+                                <div id="calendarLegend" class="calendar-legend">
+                                    <span class="legend-item"><span class="dot dot-holiday"></span> Holiday</span>
+                                    <span class="legend-item"><span class="dot dot-milestone"></span> Milestone</span>
+                                    <span class="legend-item"><span class="phase-bar example-bar"></span> Phase Duration</span>
+                                    <span class="legend-item"><span class="dot dot-scheduled"></span> Scheduled Work</span>
+                                    <span class="legend-item"><span class="dot dot-today"></span> Today</span>
+                                </div>
+                            </div>
+
+                            <aside class="construction-plan-panel" id="planPanel">
+                                <div class="panel-title">
+                                    <i class="fa-solid fa-list-check"></i>
+                                    <h3>Construction Plan</h3>
+                                </div>
+                                <p id="planEmptyState" class="plan-empty">Set a start and end date, then click Generate Plan to see your day-by-day construction schedule here.</p>
+                                <div id="planList" class="plan-list"></div>
+                            </aside>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Recent Chats Tab -->
+            <main class="app-main tab-pane" id="tab-chats">
+                <section class="full-panel glass-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            <h2>Recent Chats</h2>
+                        </div>
+                        <div class="canvas-controls">
+                            <input type="text" id="chatsSearchInput" class="custom-select" placeholder="Search chats..." autocomplete="off" style="min-width: 200px;">
+                            <button id="refreshChatsBtn" class="btn btn-primary"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="recent-chats-list" id="recentChatsPanel">
+                            <!-- Conversations generated by JS -->
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+
+    </div>
+    
+    <!-- Client Logic -->
+    <script src="/static/js/main.js?v=20260824n"></script>
+</body>
+</html>

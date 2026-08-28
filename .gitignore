@@ -1,0 +1,52 @@
+# Python / Environments
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+.venv/
+env/
+
+# Dependencies & Logs
+node_modules/
+*.log
+logs/
+
+# Monitoring / Grafana Runtime Data & Binaries
+data/
+grafana/data/
+grafana/logs/
+monitoring/bin/
+monitoring/tmp/
+*.sqlite3
+*.db
+grafana.db
+
+# Environment Secrets
+.env
+.env.local
+.flask_secret
+
+# Uploads folder & Runtime-generated data
+uploads/
+memory/*.json
+reports/*.json
+static/demo/
+output.json
+.pytest_cache/
+
+# IDE / OS
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# SQLite database
+/database/
+database/*.db
+database/*.db-shm
+database/*.db-wal

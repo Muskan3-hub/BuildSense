@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuildSense - Weather in Header</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-app: #080a13; --bg-card: rgba(16,20,38,0.55); --bg-card-hover: rgba(22,27,51,0.7);
+            --border-glass: rgba(255,255,255,0.08); --border-glass-active: rgba(0,210,255,0.3);
+            --text-primary: #f1f3f9; --text-secondary: #9aa5b5; --text-muted: #5e697a;
+            --color-primary: #4f46e5; --color-blue: #00d2ff; --color-orange: #ffaa00;
+            --color-green: #00ffaa; --color-red: #ff3b30;
+            --font-heading: 'Outfit', sans-serif; --font-body: 'Inter', sans-serif;
+            --transition-smooth: all 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:var(--bg-app); color:var(--text-primary); font-family:var(--font-body); height:100vh; display:flex; flex-direction:column; background:radial-gradient(circle at 10% 10%,#0d122b 0%,#080a13 70%); }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes spin { to{transform:rotate(360deg)} }
+
+        /* Header */
+        .app-header { display:flex; align-items:center; justify-content:space-between; padding:12px 24px; background:rgba(8,10,19,0.8); backdrop-filter:blur(12px); border-bottom:1px solid var(--border-glass); z-index:100; }
+        .header-logo { display:flex; align-items:center; gap:12px; }
+        .logo-icon { font-size:24px; background:linear-gradient(135deg,var(--color-blue),var(--color-primary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .logo-text h1 { font-family:var(--font-heading); font-size:20px; font-weight:700; line-height:1.1; }
+        .logo-text span { font-size:11px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; }
+        .header-actions { display:flex; align-items:center; gap:12px; }
+
+        /* Engine Mode Badge */
+        .engine-mode-badge { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.05); border:1px solid var(--border-glass); padding:6px 12px; border-radius:20px; font-size:12px; color:var(--text-secondary); }
+        .status-dot { width:8px; height:8px; border-radius:50%; background:var(--color-orange); }
+        .status-dot.pulsing { animation:pulse-orange 1.5s infinite; }
+        @keyframes pulse-orange { 0%,100%{box-shadow:0 0 0 0 rgba(255,170,0,0.3)} 50%{box-shadow:0 0 0 6px transparent} }
+
+        /* Buttons */
+        .btn { display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; border:1px solid transparent; }
+        .btn-danger { background:rgba(255,59,48,0.1); border:1px solid rgba(255,59,48,0.3); color:var(--color-red); }
+
+        /* ═══ Header Weather Widget ═══ */
+        .header-weather-widget { position:relative; cursor:pointer; padding:5px 12px; background:rgba(255,255,255,0.05); border:1px solid var(--border-glass); border-radius:20px; transition:var(--transition-smooth); flex-shrink:0; z-index:200; }
+        .header-weather-widget:hover, .header-weather-widget:focus-visible { border-color:var(--color-blue); background:rgba(0,210,255,0.08); }
+        .header-weather-widget:focus-visible { outline:2px solid var(--color-blue); outline-offset:2px; }
+        .hw-inner { display:flex; align-items:center; gap:6px; }
+        .hw-loading { display:flex; align-items:center; gap:6px; color:var(--text-muted); font-size:12px; }
+        .hw-loading i { animation:spin 2s linear infinite; }
+        .hw-loaded { display:flex; align-items:center; gap:6px; }
+        .hw-city { font-size:11px; color:var(--text-secondary); display:flex; align-items:center; gap:3px; }
+        .hw-city i { font-size:9px; color:var(--color-blue); }
+        .hw-icon { font-size:16px; line-height:1; }
+        .hw-temp { font-family:var(--font-heading); font-size:14px; font-weight:700; color:var(--text-primary); }
+        .dw-risk { font-size:8px; font-weight:700; padding:1px 5px; border-radius:6px; text-transform:uppercase; letter-spacing:0.5px; }
+        .dw-risk.risk-low { background:rgba(0,255,170,0.12); color:var(--color-green); }
+        .dw-risk.risk-medium { background:rgba(255,170,0,0.12); color:var(--color-orange); }
+        .dw-risk.risk-high { background:rgba(255,59,48,0.12); color:var(--color-red); }
+
+        /* ═══ Weather Popover ═══ */
+        .weather-popover { display:none; position:absolute; top:calc(100% + 10px); right:0; width:320px; max-height:calc(100vh - 80px); overflow-y:auto; z-index:300; border-radius:14px; background:rgba(16,20,38,0.97); border:1px solid var(--border-glass-active); box-shadow:0 8px 32px rgba(0,0,0,0.6), 0 0 16px rgba(0,210,255,0.1); backdrop-filter:blur(16px); animation:fadeIn 0.2s ease; }
+        .weather-popover.open { display:block; }
+        .weather-popover-inner { padding:18px 20px; }
+        .wp-header { margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; }
+        .wp-city { font-family:var(--font-heading); font-size:14px; font-weight:600; color:var(--text-primary); display:flex; align-items:center; gap:6px; }
+        .wp-city i { color:var(--color-blue); font-size:12px; }
+        .wp-risk { padding:3px 10px; border-radius:12px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+        .wp-risk.risk-low { background:rgba(0,255,170,0.12); color:var(--color-green); }
+        .wp-risk.risk-medium { background:rgba(255,170,0,0.12); color:var(--color-orange); }
+        .wp-risk.risk-high { background:rgba(255,59,48,0.12); color:var(--color-red); }
+        .wp-temp-row { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+        .wp-icon { font-size:32px; line-height:1; }
+        .wp-temp-col { display:flex; flex-direction:column; gap:2px; }
+        .wp-temp { font-family:var(--font-heading); font-size:24px; font-weight:700; color:var(--text-primary); line-height:1; }
+        .wp-condition { font-size:12px; color:var(--text-secondary); }
+        .wp-divider { height:1px; background:var(--border-glass); margin:10px 0; }
+        .wp-details { display:flex; flex-direction:column; gap:8px; }
+        .wp-detail { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-secondary); }
+        .wp-detail i { color:var(--color-blue); font-size:12px; width:14px; text-align:center; }
+        .wp-detail strong { color:var(--text-primary); }
+        .wp-advisory-title { font-size:11px; font-weight:600; color:var(--color-orange); margin-bottom:6px; display:flex; align-items:center; gap:5px; }
+        .wp-advisory-title i { font-size:11px; }
+        .wp-advisories { font-size:11px; color:var(--text-secondary); line-height:1.5; margin-bottom:8px; }
+        .wp-activities { display:flex; flex-direction:column; gap:6px; }
+        .wp-act-group { font-size:10px; line-height:1.4; }
+        .wp-act-safe { color:var(--color-green); }
+        .wp-act-restricted { color:var(--color-orange); }
+        .wp-act-label { font-weight:600; display:block; margin-bottom:2px; }
+        .wp-footer { margin-top:10px; padding-top:8px; border-top:1px solid var(--border-glass); font-size:10px; color:var(--text-muted); }
+
+        /* Layout */
+        .app-content-wrapper { display:flex; flex:1; overflow:hidden; }
+        .app-sidebar { width:80px; background:rgba(8,10,19,0.6); border-right:1px solid var(--border-glass); display:flex; flex-direction:column; padding-top:20px; }
+        .sidebar-nav { display:flex; flex-direction:column; gap:15px; align-items:center; }
+        .nav-btn { background:transparent; border:none; color:var(--text-secondary); display:flex; flex-direction:column; align-items:center; gap:6px; padding:10px; cursor:pointer; border-radius:8px; width:60px; }
+        .nav-btn i { font-size:20px; } .nav-btn span { font-size:10px; font-weight:500; }
+        .nav-btn:hover { color:var(--text-primary); background:rgba(255,255,255,0.05); }
+        .nav-btn.active { color:var(--color-blue); background:rgba(0,210,255,0.1); border-left:2px solid var(--color-blue); }
+        .app-main { display:grid; grid-template-columns:55% 45%; gap:16px; padding:16px; flex:1; overflow:hidden; }
+        .left-panel { display:flex; flex-direction:column; gap:16px; min-height:0; overflow:hidden; }
+        .right-panel { min-height:0; overflow:hidden; display:flex; flex-direction:column; }
+        .glass-card { background-color:var(--bg-card); border:1px solid var(--border-glass); border-radius:16px; backdrop-filter:blur(12px); display:flex; flex-direction:column; overflow:hidden; transition:border-color 0.4s ease; }
+        .glass-card:hover { border-color:rgba(255,255,255,0.12); }
+        .card-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid var(--border-glass); flex-shrink:0; }
+        .card-title { display:flex; align-items:center; gap:10px; }
+        .card-title i { font-size:16px; color:var(--color-blue); }
+        .card-title h2 { font-family:var(--font-heading); font-size:16px; font-weight:600; }
+        .card-body { padding:20px; flex:1; overflow-y:auto; }
+        .blueprint-card { flex:6; }
+        .blueprint-body { display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at center,#11152c 0%,#070914 100%); }
+        .upload-dropzone { width:100%; height:100%; display:flex; align-items:center; justify-content:center; padding:40px; text-align:center; }
+        .dropzone-inner { max-width:400px; display:flex; flex-direction:column; align-items:center; }
+        .drop-icon { font-size:48px; color:var(--color-blue); margin-bottom:16px; }
+        .upload-dropzone h3 { font-family:var(--font-heading); font-size:18px; margin-bottom:8px; }
+        .upload-dropzone p { font-size:13px; color:var(--text-secondary); margin-bottom:20px; }
+        .monitor-card { flex:4; }
+        .metrics-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
+        .metric-box { background:rgba(255,255,255,0.05); border:1px solid var(--border-glass); border-radius:12px; padding:16px; text-align:center; }
+        .metric-box h4 { font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; }
+        .metric-value { font-family:var(--font-heading); font-size:24px; font-weight:700; }
+        .status-good { color:var(--color-green) !important; font-size:13px !important; }
+        .section-title { font-size:13px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; }
+        .empty-log { font-size:12px; color:var(--text-muted); text-align:center; padding:20px 0; }
+        .chat-card { display:flex; flex-direction:column; overflow:hidden; flex:1; }
+        .chat-input-area { padding:16px; border-top:1px solid var(--border-glass); flex-shrink:0; }
+        .input-row { display:flex; gap:10px; align-items:center; }
+        .input-wrapper { flex:1; display:flex; align-items:center; background:rgba(255,255,255,0.05); border:1px solid var(--border-glass); border-radius:8px; padding:0 12px; }
+        .input-wrapper input { flex:1; background:none; border:none; color:var(--text-primary); padding:10px 8px; font-size:13px; outline:none; width:100%; }
+        .input-wrapper input::placeholder { color:var(--text-muted); }
+        .input-icon { color:var(--text-muted); font-size:14px; }
+        .btn-send { background:linear-gradient(135deg,var(--color-primary),#3b82f6); color:white; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; }
+
+        @media(max-width:768px){ .weather-popover{left:0;right:0;width:auto;min-width:240px;max-width:calc(100vw-48px)} .app-main{grid-template-columns:1fr} .app-sidebar{width:56px} }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-logo">
+            <div class="logo-icon"><i class="fa-solid fa-compass-drafting"></i></div>
+            <div class="logo-text"><h1>BuildSense</h1><span>Multi-Agent AI Decision Engine</span></div>
+        </div>
+        <div class="header-actions">
+            <!-- Weather Widget BEFORE Simulation Mode -->
+            <div class="header-weather-widget" id="dashboardWeatherCard" tabindex="0" role="button" aria-label="View construction weather details" aria-expanded="false" aria-controls="weatherPopover">
+                <div class="hw-inner">
+                    <div class="hw-loaded">
+                        <span class="hw-city"><i class="fa-solid fa-location-dot"></i> <span id="dwCity">Pune</span></span>
+                        <span class="hw-icon" id="dwIcon">⛅</span>
+                        <span class="hw-temp" id="dwTemp">28°C</span>
+                        <span class="dw-risk risk-medium" id="dwRisk">MEDIUM</span>
+                    </div>
+                </div>
+                <div class="weather-popover" id="weatherPopover" role="dialog" aria-label="Construction weather details">
+                    <div class="weather-popover-inner">
+                        <div class="wp-header">
+                            <span class="wp-city"><i class="fa-solid fa-location-dot"></i> <span id="wpCity">Pune</span></span>
+                            <span class="wp-risk risk-medium" id="wpRisk">MEDIUM</span>
+                        </div>
+                        <div class="wp-temp-row">
+                            <span class="wp-icon" id="wpIcon">⛅</span>
+                            <div class="wp-temp-col">
+                                <span class="wp-temp" id="wpTemp">28°C</span>
+                                <span class="wp-condition" id="wpCondition">Partly Cloudy</span>
+                            </div>
+                        </div>
+                        <div class="wp-divider"></div>
+                        <div class="wp-details">
+                            <div class="wp-detail"><i class="fa-solid fa-temperature-half"></i><span>Feels like: <strong id="wpFeelsLike">30°C</strong></span></div>
+                            <div class="wp-detail"><i class="fa-solid fa-droplet"></i><span>Humidity: <strong id="wpHumidity">65%</strong></span></div>
+                            <div class="wp-detail"><i class="fa-solid fa-wind"></i><span>Wind: <strong id="wpWind">32 km/h</strong></span></div>
+                            <div class="wp-detail"><i class="fa-solid fa-cloud-rain"></i><span>Rainfall: <strong id="wpRainfall">0.5 mm/h</strong></span></div>
+                        </div>
+                        <div class="wp-divider"></div>
+                        <div class="wp-advisory-title"><i class="fa-solid fa-hard-hat"></i> Site Advisory</div>
+                        <div class="wp-advisories">⚠️ Moderate wind (32 km/h) — ensure scaffolding bracing is properly tightened. Avoid transporting lightweight sheet materials (gypsum, glass).</div>
+                        <div class="wp-activities">
+                            <div class="wp-act-group wp-act-safe"><span class="wp-act-label">✅ Safe Activities</span>Structural masonry (covered) • Interior tiling • Electrical conduit • Carpentry (indoor)</div>
+                            <div class="wp-act-group wp-act-restricted"><span class="wp-act-label">⛔ Restricted Activities</span>Scaffolding erection • Crane & material hoisting • Sheet material handling</div>
+                        </div>
+                        <div class="wp-footer">Updated just now</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="engine-mode-badge"><span class="status-dot pulsing"></span><span>Simulation Mode</span></div>
+            <button class="btn btn-danger"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
+        </div>
+    </header>
+
+    <div class="app-content-wrapper">
+        <aside class="app-sidebar">
+            <nav class="sidebar-nav">
+                <button class="nav-btn active"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></button>
+                <button class="nav-btn"><i class="fa-solid fa-calendar-days"></i><span>Calendar</span></button>
+                <button class="nav-btn"><i class="fa-solid fa-couch"></i><span>Design Studio</span></button>
+                <button class="nav-btn"><i class="fa-solid fa-brain"></i><span>Memory Log</span></button>
+            </nav>
+        </aside>
+
+        <main class="app-main">
+            <section class="left-panel">
+                <div class="glass-card blueprint-card" style="flex:6;">
+                    <div class="card-header"><div class="card-title"><i class="fa-solid fa-map"></i><h2>Floor Plan Workspace</h2></div></div>
+                    <div class="card-body blueprint-body">
+                        <div class="upload-dropzone"><div class="dropzone-inner">
+                            <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
+                            <h3>Drag & Drop Floor Plan</h3><p>Supports PNG, JPG, JPEG</p>
+                        </div></div>
+                    </div>
+                </div>
+                <div class="glass-card monitor-card" style="flex:4;">
+                    <div class="card-header"><div class="card-title"><i class="fa-solid fa-server"></i><h2>BuildSense Monitor</h2></div></div>
+                    <div class="card-body">
+                        <div class="metrics-grid">
+                            <div class="metric-box"><h4>Active Agents</h4><span class="metric-value">3</span></div>
+                            <div class="metric-box"><h4>Completed Tasks</h4><span class="metric-value">12</span></div>
+                            <div class="metric-box"><h4>API Health</h4><span class="metric-value status-good">● Healthy</span></div>
+                        </div>
+                        <h4 class="section-title">Recent Agent Activity</h4>
+                        <div class="empty-log">Awaiting workflow initialization...</div>
+                    </div>
+                </div>
+            </section>
+            <section class="right-panel">
+                <div class="glass-card chat-card">
+                    <div class="card-header"><div class="card-title"><i class="fa-solid fa-comment-dots"></i><h2>Decision Support & Chat</h2></div></div>
+                    <div class="card-body" style="flex:1;">
+                        <div style="text-align:center;padding:60px 20px;">
+                            <i class="fa-solid fa-robot" style="font-size:36px;color:var(--color-blue);opacity:0.3;margin-bottom:16px;display:block;"></i>
+                            <p style="color:var(--text-muted);font-size:13px;">Upload a floor plan on the left, then ask questions about budget, compliance, or scheduling.</p>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <div class="input-row">
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-message input-icon"></i>
+                                <input type="text" placeholder="Ask about cost estimation, NBC safety norms, or labor..." autocomplete="off">
+                            </div>
+                            <button class="btn-send" style="width:40px;height:40px;"><i class="fa-solid fa-paper-plane" style="color:white;"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const card = document.getElementById('dashboardWeatherCard');
+        const popover = document.getElementById('weatherPopover');
+        function closePopover() { popover.classList.remove('open'); card.setAttribute('aria-expanded','false'); }
+        card.addEventListener('click', (e) => {
+            e.stopPropagation();
+            popover.classList.contains('open') ? closePopover() : (popover.classList.add('open'), card.setAttribute('aria-expanded','true'));
+        });
+        card.addEventListener('keydown', (e) => {
+            if(e.key==='Enter'||e.key===' '){e.preventDefault();card.click();}
+            if(e.key==='Escape') closePopover();
+        });
+        document.addEventListener('click', (e) => { if(popover.classList.contains('open')&&!card.contains(e.target)) closePopover(); });
+        document.addEventListener('keydown', (e) => { if(e.key==='Escape') closePopover(); });
+    </script>
+</body>
+</html>
